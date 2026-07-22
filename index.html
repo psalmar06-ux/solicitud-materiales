@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solicitud de Materiales</title>
+<style>
+  :root{
+    --bg: #EEF1F5;
+    --panel: #FFFFFF;
+    --ink: #1B2432;
+    --ink-soft: #5B6576;
+    --line: #DDE2E9;
+    --navy: #1E293B;
+    --amber: #E2963C;
+    --amber-dark: #C97B22;
+    --amber-soft: #FBEBD6;
+    --danger: #C24B4B;
+    --ok: #3E8E5C;
+    --mono: 'JetBrains Mono', 'Courier New', monospace;
+    --sans: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background: var(--bg);
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 28px 28px;
+    background-attachment: fixed;
+    font-family: var(--sans);
+    color: var(--ink);
+    min-height:100vh;
+    padding: 32px 16px 64px;
+  }
+  .wrap{
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  .eyebrow{
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom: 6px;
+  }
+  .eyebrow::before{
+    content:"";
+    width:20px; height:2px;
+    background: var(--amber);
+    display:inline-block;
+  }
+  h1{
+    font-size: 30px;
+    margin: 0 0 4px;
+    letter-spacing: -0.5px;
+    color: var(--navy);
+  }
+  .sub{
+    color: var(--ink-soft);
+    margin: 0 0 28px;
+    font-size: 14.5px;
+  }
+  .panel{
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 18px;
+    box-shadow: 0 1px 2px rgba(20,30,50,0.04);
+  }
+  label{
+    display:block;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 6px;
+    letter-spacing: 0.2px;
+  }
+  input[type=text], input[type=number]{
+    width:100%;
+    padding: 11px 12px;
+    border-radius: 9px;
+    border: 1px solid var(--line);
+    background: #FCFCFD;
+    font-size: 14.5px;
+    color: var(--ink);
+    font-family: var(--sans);
+  }
+  input:focus{
+    outline: none;
+    border-color: var(--amber);
+    box-shadow: 0 0 0 3px var(--amber-soft);
+  }
+  .field{ margin-bottom: 16px; }
+  .row2{
+    display:grid;
+    grid-template-columns: 1fr 120px;
+    gap: 12px;
+  }
+  .unit-label{
+    font-size:12.5px; font-weight:600; color:var(--navy);
+    margin: 4px 0 8px;
+  }
+  .unit-grid{
+    display:flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+  .unit-btn{
+    font-family: var(--mono);
+    font-size: 12.5px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: #FCFCFD;
+    color: var(--ink-soft);
+    cursor:pointer;
+    transition: all .15s ease;
+  }
+  .unit-btn:hover{ border-color: var(--amber); color: var(--navy); }
+  .unit-btn.active{
+    background: var(--navy);
+    border-color: var(--navy);
+    color: #fff;
+  }
+  .btn{
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 14px;
+    padding: 11px 18px;
+    border-radius: 9px;
+    border: none;
+    cursor: pointer;
+    transition: transform .1s ease, opacity .15s ease;
+  }
+  .btn:active{ transform: scale(0.98); }
+  .btn-add{
+    background: var(--amber);
+    color: #fff;
+    width: 100%;
+  }
+  .btn-add:hover{ background: var(--amber-dark); }
+  .btn-save{
+    background: var(--navy);
+    color: #fff;
+    width: 100%;
+    padding: 14px;
+    font-size: 15px;
+  }
+  .btn-save:disabled{
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .btn-edit, .btn-del{
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+    background: #fff;
+    cursor: pointer;
+    color: var(--ink-soft);
+  }
+  .btn-edit:hover{ border-color: var(--navy); color: var(--navy); }
+  .btn-del:hover{ border-color: var(--danger); color: var(--danger); }
+
+  .items-title{
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 12px;
+  }
+  .item{
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 12px 4px;
+    border-bottom: 1px dashed var(--line);
+  }
+  .item:last-child{ border-bottom: none; }
+  .item-info{
+    display:flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .item-name{ font-weight: 600; font-size: 14px; color: var(--navy); }
+  .item-meta{ font-family: var(--mono); font-size: 12px; color: var(--ink-soft); }
+  .item-actions{ display:flex; gap: 6px; flex-shrink:0; }
+  .empty{
+    color: var(--ink-soft);
+    font-size: 13.5px;
+    text-align: center;
+    padding: 18px 0;
+    font-style: italic;
+  }
+
+  /* Confirmation view */
+  .confirm{
+    text-align: center;
+    padding: 12px 8px 4px;
+  }
+  .stamp{
+    display:inline-flex;
+    flex-direction: column;
+    align-items:center;
+    justify-content:center;
+    width: 150px; height: 150px;
+    margin: 22px auto 6px;
+    border: 3px solid var(--amber);
+    border-radius: 50%;
+    transform: rotate(-6deg);
+    position: relative;
+  }
+  .stamp::after{
+    content:"";
+    position:absolute;
+    inset: 8px;
+    border: 1px dashed var(--amber);
+    border-radius: 50%;
+  }
+  .stamp-label{
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--amber-dark);
+    text-transform: uppercase;
+  }
+  .stamp-num{
+    font-family: var(--mono);
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--navy);
+  }
+  .confirm h2{
+    color: var(--navy);
+    margin: 8px 0 2px;
+  }
+  .confirm p{ color: var(--ink-soft); font-size: 14px; }
+  .confirm .fecha{
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    margin-bottom: 20px;
+  }
+  .btn-new{
+    background: transparent;
+    color: var(--navy);
+    border: 1px solid var(--line);
+    width: auto;
+    padding: 10px 20px;
+  }
+  .btn-new:hover{ border-color: var(--navy); }
+  .error-box{
+    background: #FBEAEA;
+    border: 1px solid #EFC5C5;
+    color: var(--danger);
+    padding: 12px 14px;
+    border-radius: 9px;
+    font-size: 13.5px;
+    margin-bottom: 16px;
+    display:none;
+  }
+  .loading{
+    display:none;
+    text-align:center;
+    color: var(--ink-soft);
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 10px 0;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div id="formView">
+    <div class="eyebrow">Solicitud interna</div>
+    <h1>Solicitud de materiales</h1>
+    <p class="sub">Completa tus datos y agrega cada material que necesitas antes de guardar.</p>
+
+    <div class="panel">
+      <div class="field">
+        <label for="nombre">Nombre de quien solicita</label>
+        <input type="text" id="nombre" placeholder="Escribe tu nombre completo">
+      </div>
+
+      <div class="field" style="margin-bottom:12px;">
+        <label for="material">Material</label>
+        <input type="text" id="material" placeholder="Ej: Guantes de nitrilo">
+      </div>
+
+      <div class="row2" style="margin-bottom:4px;">
+        <div>
+          <label for="cantidad">Cantidad</label>
+          <input type="number" id="cantidad" min="0" step="1" placeholder="0">
+        </div>
+        <div></div>
+      </div>
+
+      <div class="unit-label">Unidad de medida</div>
+      <div class="unit-grid" id="unitGrid"></div>
+
+      <button class="btn btn-add" id="addBtn">+ Agregar material a la lista</button>
+    </div>
+
+    <div class="panel">
+      <div class="items-title">Materiales de esta solicitud</div>
+      <div id="itemsList"><div class="empty">Aún no has agregado materiales.</div></div>
+    </div>
+
+    <div class="error-box" id="errorBox"></div>
+    <div class="loading" id="loadingBox">Enviando solicitud…</div>
+    <button class="btn btn-save" id="saveBtn" disabled>Guardar solicitud</button>
+  </div>
+
+  <div id="confirmView" style="display:none;">
+    <div class="panel confirm">
+      <div class="eyebrow" style="justify-content:center;">Solicitud recibida</div>
+      <h2>¡Gracias por enviar tu formulario!</h2>
+      <p>Guarda este número por si necesitas consultar tu solicitud.</p>
+      <div class="stamp">
+        <span class="stamp-label">N° solicitud</span>
+        <span class="stamp-num" id="confirmNum">—</span>
+      </div>
+      <div class="fecha" id="confirmFecha"></div>
+      <button class="btn btn-new" id="newBtn">Enviar otra solicitud</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// =====================================================================
+// CONFIGURACIÓN: pega aquí la URL de tu implementación de Apps Script
+// (Extensiones > Apps Script > Implementar > Nueva implementación > Web App)
+// =====================================================================
+const SCRIPT_URL = "PEGA_AQUI_TU_URL_DE_APPS_SCRIPT";
+
+const UNITS = ["Unidad","Paquete","Kg","Gr","Caja","Bulto","Botellón","Bidón"];
+let selectedUnit = null;
+let editingIndex = null;
+let items = [];
+
+const unitGrid = document.getElementById('unitGrid');
+UNITS.forEach(u => {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'unit-btn';
+  b.textContent = u;
+  b.onclick = () => {
+    selectedUnit = u;
+    [...unitGrid.children].forEach(c => c.classList.remove('active'));
+    b.classList.add('active');
+  };
+  unitGrid.appendChild(b);
+});
+
+const materialInput = document.getElementById('material');
+const cantidadInput = document.getElementById('cantidad');
+const nombreInput = document.getElementById('nombre');
+const addBtn = document.getElementById('addBtn');
+const itemsList = document.getElementById('itemsList');
+const saveBtn = document.getElementById('saveBtn');
+const errorBox = document.getElementById('errorBox');
+const loadingBox = document.getElementById('loadingBox');
+
+function showError(msg){
+  errorBox.textContent = msg;
+  errorBox.style.display = 'block';
+  setTimeout(()=> errorBox.style.display = 'none', 3500);
+}
+
+function renderItems(){
+  if(items.length === 0){
+    itemsList.innerHTML = '<div class="empty">Aún no has agregado materiales.</div>';
+  } else {
+    itemsList.innerHTML = '';
+    items.forEach((it, i) => {
+      const row = document.createElement('div');
+      row.className = 'item';
+      row.innerHTML = `
+        <div class="item-info">
+          <span class="item-name">${it.material}</span>
+          <span class="item-meta">${it.cantidad} · ${it.unidad}</span>
+        </div>
+        <div class="item-actions">
+          <button class="btn-edit" data-i="${i}">Editar</button>
+          <button class="btn-del" data-i="${i}">Borrar</button>
+        </div>`;
+      itemsList.appendChild(row);
+    });
+    itemsList.querySelectorAll('.btn-edit').forEach(b => b.onclick = () => editItem(+b.dataset.i));
+    itemsList.querySelectorAll('.btn-del').forEach(b => b.onclick = () => delItem(+b.dataset.i));
+  }
+  saveBtn.disabled = !(items.length > 0 && nombreInput.value.trim());
+}
+
+function editItem(i){
+  const it = items[i];
+  materialInput.value = it.material;
+  cantidadInput.value = it.cantidad;
+  selectedUnit = it.unidad;
+  [...unitGrid.children].forEach(c => c.classList.toggle('active', c.textContent === it.unidad));
+  editingIndex = i;
+  addBtn.textContent = '✓ Guardar cambios de este material';
+  materialInput.focus();
+}
+
+function delItem(i){
+  items.splice(i,1);
+  renderItems();
+}
+
+function resetMaterialForm(){
+  materialInput.value = '';
+  cantidadInput.value = '';
+  selectedUnit = null;
+  [...unitGrid.children].forEach(c => c.classList.remove('active'));
+  editingIndex = null;
+  addBtn.textContent = '+ Agregar material a la lista';
+}
+
+addBtn.onclick = () => {
+  const material = materialInput.value.trim();
+  const cantidad = cantidadInput.value;
+  if(!material){ showError('Escribe el nombre del material.'); return; }
+  if(!cantidad || Number(cantidad) <= 0){ showError('Indica una cantidad válida.'); return; }
+  if(!selectedUnit){ showError('Selecciona una unidad de medida.'); return; }
+
+  const entry = { material, cantidad: Number(cantidad), unidad: selectedUnit };
+  if(editingIndex !== null){
+    items[editingIndex] = entry;
+  } else {
+    items.push(entry);
+  }
+  resetMaterialForm();
+  renderItems();
+};
+
+nombreInput.addEventListener('input', renderItems);
+
+saveBtn.onclick = async () => {
+  const nombre = nombreInput.value.trim();
+  if(!nombre || items.length === 0) return;
+
+  if(SCRIPT_URL.includes("PEGA_AQUI")){
+    showError('Falta conectar la URL de Apps Script en el archivo (ver instrucciones).');
+    return;
+  }
+
+  saveBtn.disabled = true;
+  loadingBox.style.display = 'block';
+
+  try{
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ nombre, materiales: items })
+    });
+    const data = await res.json();
+    document.getElementById('confirmNum').textContent = '#' + data.numero;
+    document.getElementById('confirmFecha').textContent = data.fecha;
+    document.getElementById('formView').style.display = 'none';
+    document.getElementById('confirmView').style.display = 'block';
+  } catch(err){
+    showError('No se pudo enviar la solicitud. Verifica tu conexión e inténtalo de nuevo.');
+    saveBtn.disabled = false;
+  } finally {
+    loadingBox.style.display = 'none';
+  }
+};
+
+document.getElementById('newBtn').onclick = () => {
+  items = [];
+  nombreInput.value = '';
+  resetMaterialForm();
+  renderItems();
+  document.getElementById('confirmView').style.display = 'none';
+  document.getElementById('formView').style.display = 'block';
+};
+
+renderItems();
+</script>
+</body>
+</html>
